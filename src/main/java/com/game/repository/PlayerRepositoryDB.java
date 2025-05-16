@@ -38,13 +38,10 @@ public class PlayerRepositoryDB implements IPlayerRepository {
     public List<Player> getAll(int pageNumber, int pageSize) {
         List<Player> players = new ArrayList<>();
         try(Session session = sessionFactory.openSession()){
-            String sql = "SELECT * FROM player LIMIT :pageSize OFFSET :skipPosition";
+            String sql = "SELECT * FROM player";
             NativeQuery<Player> nativeQuery = session.createNativeQuery(sql, Player.class);
-            nativeQuery.setParameter("pageSize", pageSize);
-            if(pageNumber > 0)
-                nativeQuery.setParameter("skipPosition", (pageNumber * pageSize));
-            else
-                nativeQuery.setParameter("skipPosition", 0);
+            nativeQuery.setFirstResult(pageNumber * pageSize);
+            nativeQuery.setMaxResults(pageSize);
             players = nativeQuery.list();
         } catch (HibernateException he){
             he.printStackTrace();
@@ -54,7 +51,7 @@ public class PlayerRepositoryDB implements IPlayerRepository {
 
     @Override
     public int getAllCount() {
-        Integer count = 0;
+        int count = 0;
         try(Session session = sessionFactory.openSession()){
             Long totalCount = session.createNamedQuery("Player_FindTotalCount", Long.class).uniqueResult();
             try{
@@ -101,14 +98,10 @@ public class PlayerRepositoryDB implements IPlayerRepository {
 
     @Override
     public Optional<Player> findById(long id) {
-        Optional<Player> playerOptional = null;
         try(Session session = sessionFactory.openSession()){
-            String hql = "FROM Player WHERE id = :id";
-            Query<Player> query = session.createQuery(hql, Player.class);
-            query.setParameter("id", id);
-            playerOptional = Optional.ofNullable(query.uniqueResult());
+            Player player = session.find(Player.class, id);
+            return Optional.ofNullable(player);
         }
-        return playerOptional;
     }
 
     @Override

@@ -1,13 +1,12 @@
 package com.game.entity;
 
-import jakarta.persistence.*;
+import javax.persistence.*;
 
 import java.util.Date;
 
-@NamedQueries({
-        @NamedQuery(name = "Player_FindTotalCount",
+
+@NamedQuery(name = "Player_FindTotalCount",
         query = "select count(*) from Player")
-})
 
 @Entity
 @Table(name = "player", schema = "rpg")
